@@ -4,10 +4,13 @@ import * as tripService from "../services/tripService.local";
 import type { Trip } from "../Types/trip";
 import DayView from "../features/itinarery/DayView";
 import MapPanel from "../features/itinarery/MapPanel";
+import ExpenseTracker from "../features/expenses/ExpenseTracker";
 
 export default function Trip() {
   const { id } = useParams();
   const [trip, setTrip] = useState<Trip | undefined>(undefined);
+  const [activeTab, setActiveTab] = useState<"itinerary" | "map" | "expenses">("itinerary");
+
 
   useEffect(() => {
     if (!id) return;
@@ -17,43 +20,60 @@ export default function Trip() {
   if (!trip) return <div>Loading...</div>;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">{trip.title}</h2>
-          <div className="text-sm text-gray-500">
-            {trip.startDate} → {trip.endDate}
-          </div>
-        </div>
+  <div className="bg-white rounded shadow-sm p-4">
+    
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+      <div>
+        <h2 className="text-2xl font-semibold">{trip.title}</h2>
+        <div className="text-gray-500">{trip.startDate} → {trip.endDate}</div>
+      </div>
+    </div>
+
+  
+    <div className="flex gap-4 border-b mb-4">
+      <button
+        onClick={() => setActiveTab("itinerary")}
+        className={`pb-2 ${activeTab === "itinerary" ? "border-b-2 border-blue-600 font-semibold" : "text-gray-500"}`}
+      >
+        Itinerary
+      </button>
+      <button
+        onClick={() => setActiveTab("map")}
+        className={`pb-2 ${activeTab === "map" ? "border-b-2 border-blue-600 font-semibold" : "text-gray-500"}`}
+      >
+        Map
+      </button>
+      <button
+        onClick={() => setActiveTab("expenses")}
+        className={`pb-2 ${activeTab === "expenses" ? "border-b-2 border-blue-600 font-semibold" : "text-gray-500"}`}
+      >
+        Expenses
+      </button>
+    </div>
+
+    
+    <div>
+      {activeTab === "itinerary" && (
         <DayView
           trip={trip}
           onChange={async () =>
             setTrip((await tripService.loadTrip(trip.id)) as Trip)
           }
         />
-      </div>
+      )}
 
-      <aside>
-        <MapPanel items={trip.items} />
-        <div className="mt-4 bg-white p-4 rounded shadow-sm">
-          <h3 className="font-medium mb-2">Export</h3>
-          <button
-            className="w-full p-2 bg-gray-800 text-white rounded"
-            onClick={() => {
-              const blob = new Blob([JSON.stringify(trip, null, 2)], {
-                type: "application/json",
-              });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `${trip.title}.json`;
-              a.click();
-            }}
-          >
-            Export JSON
-          </button>
-        </div>
-      </aside>
+      {activeTab === "map" && <MapPanel items={trip.items} />}
+
+      {activeTab === "expenses" && (
+        <ExpenseTracker
+          trip={trip}
+          onChange={async () =>
+            setTrip((await tripService.loadTrip(trip.id)) as Trip)
+          }
+        />
+      )}
     </div>
-  );
+  </div>
+);
+
 }
