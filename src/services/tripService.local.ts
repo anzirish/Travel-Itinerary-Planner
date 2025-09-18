@@ -1,5 +1,5 @@
 import * as db from "../lib/db";
-import type { ItineraryItem, Trip } from "../Types/trip";
+import type { Expense, ItineraryItem, Trip } from "../Types/trip";
 import { v4 as uuid } from "uuid";
 
 export async function listTrips(): Promise<Trip[]> {
@@ -53,4 +53,20 @@ export async function addItem(tripId: string, item: Omit<ItineraryItem, "id">) {
   trip.items.push(newItem);
   await db.saveTrip(trip);
   return newItem;
+}
+
+export async function addExpense(tripId: string, expense: Omit<Expense, "id">) {
+  const trip = await db.getTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+  const newExpense: Expense = { ...expense, id: uuid() };
+  trip.expenses = [...(trip.expenses ?? []), newExpense];
+  await db.saveTrip(trip);
+  return newExpense;
+}
+
+export async function deleteExpense(tripId: string, expenseId: string) {
+  const trip = await db.getTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+  trip.expenses = (trip.expenses ?? []).filter((e) => e.id !== expenseId);
+  await db.saveTrip(trip);
 }
