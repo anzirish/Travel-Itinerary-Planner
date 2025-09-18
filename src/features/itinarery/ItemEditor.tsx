@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { ItineraryItem, ItineraryItemType } from "../../Types/trip";
 import * as tripService from "../../services/tripService.local";
+import LocationPicker from "../../modals/LocationPicker";
 
 interface ItemEditorProps {
   date: string;
@@ -24,6 +25,10 @@ export default function ItemEditor({
     item?.start ? item.start.slice(11, 16) : "00:00"
   );
 
+  // ✅ location state
+  const [location, setLocation] = useState(item?.location ?? null);
+  const [showPicker, setShowPicker] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isoStart = `${date}T${time}:00`;
@@ -35,6 +40,7 @@ export default function ItemEditor({
         title,
         type,
         start: isoStart,
+        location, // ✅ save location
       };
       const trip = await tripService.loadTrip(tripId);
       if (!trip) return;
@@ -49,6 +55,7 @@ export default function ItemEditor({
         title,
         type,
         start: isoStart,
+        location, // ✅ save location
       });
     }
 
@@ -84,6 +91,22 @@ export default function ItemEditor({
           className="p-2 border rounded"
         />
 
+        {/* ✅ Location Picker */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowPicker(true)}
+            className="px-3 py-1 bg-blue-500 text-white rounded"
+          >
+            {location ? "Update Location" : "Set Location"}
+          </button>
+          {location && (
+            <span className="text-sm text-gray-600">
+              📍 {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+            </span>
+          )}
+        </div>
+
         <div className="flex gap-2">
           <button
             type="submit"
@@ -100,6 +123,22 @@ export default function ItemEditor({
           </button>
         </div>
       </form>
+
+      {/* ✅ Modal for picking location */}
+      {showPicker && (
+        <LocationPicker
+          isOpen={showPicker}
+          onClose={() => setShowPicker(false)}
+          onSelect={(loc) =>
+            setLocation({
+              name: "Custom location",
+              lat: loc.lat,
+              lng: loc.lng,
+              address: "",
+            })
+          }
+        />
+      )}
     </div>
   );
 }
