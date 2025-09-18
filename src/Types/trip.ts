@@ -6,7 +6,7 @@ export interface ItineraryItem {
   title: string;
   start: string;
   end?: string;
-  location?: { name: string; lan: number; lat: number; address: string } | null;
+  location?: { name: string; lng: number; lat: number; address: string } | null;
   details?: Record<string, unknown>;
 }
 

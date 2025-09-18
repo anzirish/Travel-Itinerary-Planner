@@ -1,6 +1,7 @@
 import { Link, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Trips from "./pages/Trips";
+import Trip from "./pages/Trip";
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Trips />} />
             <Route path="/trips" element={<Trips />} />
-            <Route path="/trip/:id" element={<Trips />} />
+            <Route path="/trip/:id" element={<Trip />} />
           </Routes>
         </main>
       </div>
