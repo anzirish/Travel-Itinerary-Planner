@@ -16,11 +16,7 @@ export default function DayView({ trip, onChange }: DayViewProps) {
   const days = getDatesBetween(trip.startDate, trip.endDate);
 
   async function handleDelete(itemId: string) {
-    const updatedTrip = {
-      ...trip,
-      items: trip.items.filter((it) => it.id !== itemId),
-    };
-    await tripService.saveTrip(updatedTrip);
+    await tripService.deleteItem(trip.id, itemId);
     if (onChange) {
       onChange();
     }
