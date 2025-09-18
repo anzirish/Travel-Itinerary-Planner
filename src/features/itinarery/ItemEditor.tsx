@@ -25,7 +25,7 @@ export default function ItemEditor({
     item?.start ? item.start.slice(11, 16) : "00:00"
   );
 
-  // ✅ location state
+  // location state
   const [location, setLocation] = useState(item?.location ?? null);
   const [showPicker, setShowPicker] = useState(false);
 
@@ -40,7 +40,7 @@ export default function ItemEditor({
         title,
         type,
         start: isoStart,
-        location, // ✅ save location
+        location, //  save location
       };
       const trip = await tripService.loadTrip(tripId);
       if (!trip) return;
@@ -55,7 +55,7 @@ export default function ItemEditor({
         title,
         type,
         start: isoStart,
-        location, // ✅ save location
+        location, //  save location
       });
     }
 
@@ -91,7 +91,7 @@ export default function ItemEditor({
           className="p-2 border rounded"
         />
 
-        {/* ✅ Location Picker */}
+        {/*  Location Picker */}
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -124,7 +124,7 @@ export default function ItemEditor({
         </div>
       </form>
 
-      {/* ✅ Modal for picking location */}
+      {/*  Modal for picking location */}
       {showPicker && (
         <LocationPicker
           isOpen={showPicker}

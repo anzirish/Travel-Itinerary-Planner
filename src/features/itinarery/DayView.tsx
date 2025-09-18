@@ -52,6 +52,7 @@ export default function DayView({ trip, onChange }: DayViewProps) {
                     <div className="text-sm text-gray-500">
                       {it.type} • {it.start.slice(11, 16)}
                       {it.end ? ` - ${it.end.slice(11, 16)}` : ""}
+                      {it.location?.name ? ` • 📍 ${it.location.name}` : ""}
                     </div>
                   </div>
                   <div className="flex gap-2">
