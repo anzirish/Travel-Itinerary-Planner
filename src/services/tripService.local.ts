@@ -34,6 +34,16 @@ export function removeTrip(id: string) {
   return db.deleteTrip(id);
 }
 
+export async function deleteItem(tripId: string, itemId: string) {
+  const trip = await db.getTrip(tripId);
+  if (!trip) {
+    throw new Error("Trip not found");
+  }
+  trip.items = trip.items.filter((it) => it.id !== itemId);
+  await db.saveTrip(trip);
+  return true;
+}
+
 export async function addItem(tripId: string, item: Omit<ItineraryItem, "id">) {
   const trip = await db.getTrip(tripId);
   if (!trip) {
