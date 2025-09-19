@@ -16,6 +16,12 @@ export interface PackingItem {
   packed: boolean;
 }
 
+export interface WeatherForecast {
+  date: string;       // ISO date
+  temp: number;       // Celsius
+  description: string; 
+}
+
 export interface Trip {
   id: string;
   title: string;
@@ -23,9 +29,10 @@ export interface Trip {
   endDate: string;
   items: ItineraryItem[];
   expenses?: Expense[];
-  packingList?: PackingItem[];   //  to be used next
-  documents?: TravelDocument[];  //  later
-  reviews?: Review[];            //  later
+  packingList?: PackingItem[];
+  weather?: WeatherForecast[]; // optional forecast data
+  documents?: TravelDocument[];
+  reviews?: Review[];
 }
 
 export interface Expense {
