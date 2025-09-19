@@ -1,5 +1,5 @@
 import * as db from "../lib/db";
-import type { Expense, ItineraryItem, Trip } from "../Types/trip";
+import type { Expense, ItineraryItem, PackingItem, Trip } from "../Types/trip";
 import { v4 as uuid } from "uuid";
 
 export async function listTrips(): Promise<Trip[]> {
@@ -68,5 +68,30 @@ export async function deleteExpense(tripId: string, expenseId: string) {
   const trip = await db.getTrip(tripId);
   if (!trip) throw new Error("Trip not found");
   trip.expenses = (trip.expenses ?? []).filter((e) => e.id !== expenseId);
+  await db.saveTrip(trip);
+}
+
+export async function addPackingItem(tripId: string, name: string) {
+  const trip = await db.getTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+  const newItem: PackingItem = { id: uuid(), name, packed: false };
+  trip.packingList = [...(trip.packingList ?? []), newItem];
+  await db.saveTrip(trip);
+  return newItem;
+}
+
+export async function togglePackingItem(tripId: string, itemId: string) {
+  const trip = await db.getTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+  trip.packingList = (trip.packingList ?? []).map((item) =>
+    item.id === itemId ? { ...item, packed: !item.packed } : item
+  );
+  await db.saveTrip(trip);
+}
+
+export async function removePackingItem(tripId: string, itemId: string) {
+  const trip = await db.getTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+  trip.packingList = (trip.packingList ?? []).filter((i) => i.id !== itemId);
   await db.saveTrip(trip);
 }

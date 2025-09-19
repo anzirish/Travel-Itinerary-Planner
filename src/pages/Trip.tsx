@@ -5,11 +5,13 @@ import type { Trip } from "../Types/trip";
 import DayView from "../features/itinarery/DayView";
 import MapPanel from "../features/itinarery/MapPanel";
 import ExpenseTracker from "../features/expenses/ExpenseTracker";
+import PackingList from "../features/packing/PackingList";
 
 export default function Trip() {
   const { id } = useParams();
   const [trip, setTrip] = useState<Trip | undefined>(undefined);
-  const [activeTab, setActiveTab] = useState<"itinerary" | "map" | "expenses">("itinerary");
+ const [activeTab, setActiveTab] = useState<"itinerary" | "map" | "expenses" | "packing">("itinerary");
+
 
 
   useEffect(() => {
@@ -44,6 +46,12 @@ export default function Trip() {
         Map
       </button>
       <button
+  onClick={() => setActiveTab("packing")}
+  className={`pb-2 ${activeTab === "packing" ? "border-b-2 border-blue-600 font-semibold" : "text-gray-500"}`}
+>
+  Packing List
+</button>
+      <button
         onClick={() => setActiveTab("expenses")}
         className={`pb-2 ${activeTab === "expenses" ? "border-b-2 border-blue-600 font-semibold" : "text-gray-500"}`}
       >
@@ -63,6 +71,14 @@ export default function Trip() {
       )}
 
       {activeTab === "map" && <MapPanel items={trip.items} />}
+{activeTab === "packing" && (
+  <PackingList
+    trip={trip}
+    onChange={async () =>
+      setTrip((await tripService.loadTrip(trip.id)) as Trip)
+    }
+  />
+)}
 
       {activeTab === "expenses" && (
         <ExpenseTracker
