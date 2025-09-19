@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { ItineraryItem, ItineraryItemType } from "../../Types/trip";
-import * as tripService from "../../services/tripService.local";
+import * as tripService from "../../services/tripService.firebase";
 import LocationPicker from "../../modals/LocationPicker";
 
 interface ItemEditorProps {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ItemEditor from "./ItemEditor";
 import type { Trip, ItineraryItem } from "../../Types/trip";
-import * as tripService from "../../services/tripService.local";
+import * as tripService from "../../services/tripService.firebase";
 
 interface DayViewProps {
   trip: Trip;

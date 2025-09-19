@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Trip } from "../Types/trip";
 import { Link, useNavigate } from "react-router-dom";
-import * as tripService from "../services/tripService.local";
+import * as tripService from "../services/tripService.firebase";
 
 const Trips = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -10,13 +10,16 @@ const Trips = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    (async () => setTrips(await tripService.listTrips()))();
+    const unsub = tripService.subscribeTrips((allTrips) => {
+      setTrips(allTrips);
+    });
+    return () => unsub();
   }, []);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !dates.start || !dates.end) return;
-    const newTrip : Trip = await tripService.createTrip({
+    const newTrip: Trip = await tripService.createTrip({
       title,
       startDate: dates.start,
       endDate: dates.end,
@@ -83,7 +86,6 @@ const Trips = () => {
                 className="text-sm text-white font-semibold px-4 py-2 cursor-pointer hover:bg-red-600 border rounded bg-red-500"
                 onClick={async () => {
                   await tripService.removeTrip(t.id);
-                  setTrips(await tripService.listTrips());
                 }}
               >
                 Delete

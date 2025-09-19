@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Trip } from "../../Types/trip"; 
-import * as tripService from "../../services/tripService.local";
+import * as tripService from "../../services/tripService.firebase";
 
 interface Props {
   trip: Trip;

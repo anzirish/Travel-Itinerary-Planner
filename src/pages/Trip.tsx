@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import * as tripService from "../services/tripService.local";
+import * as tripService from "../services/tripService.firebase";
 import type { Trip } from "../Types/trip";
 import DayView from "../features/itinarery/DayView";
 import MapPanel from "../features/itinarery/MapPanel";
@@ -15,10 +15,12 @@ export default function Trip() {
     "itinerary" | "map" | "expenses" | "packing" | "weather"
   >("itinerary");
 
-  useEffect(() => {
-    if (!id) return;
-    (async () => setTrip(await tripService.loadTrip(id)))();
-  }, [id]);
+ useEffect(() => {
+  if (!id) return;
+  const unsub = tripService.subscribeTrip(id, (t) => setTrip(t));
+  return () => unsub();
+}, [id]);
+
 
   if (!trip) return <div>Loading...</div>;
 
