@@ -18,9 +18,7 @@ export default function ItemEditor({
 }: ItemEditorProps) {
   // local form state
   const [title, setTitle] = useState(item?.title || "");
-  const [type, setType] = useState<ItineraryItemType>(
-    item?.type || "activity"
-  );
+  const [type, setType] = useState<ItineraryItemType>(item?.type || "activity");
   const [time, setTime] = useState(
     item?.start ? item.start.slice(11, 16) : "00:00"
   );
@@ -91,7 +89,6 @@ export default function ItemEditor({
           className="p-2 border rounded"
         />
 
-        {/*  Location Picker */}
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -124,19 +121,31 @@ export default function ItemEditor({
         </div>
       </form>
 
-      {/*  Modal for picking location */}
       {showPicker && (
         <LocationPicker
           isOpen={showPicker}
           onClose={() => setShowPicker(false)}
-          onSelect={(loc) =>
-            setLocation({
-              name: "Custom location",
-              lat: loc.lat,
-              lng: loc.lng,
-              address: "",
-            })
-          }
+          onSelect={async (loc) => {
+            try {
+              const result = await import("../../services/geocodeService").then(
+                (m) => m.reverseGeocode(loc.lat, loc.lng)
+              );
+              setLocation({
+                name: result.name,
+                lat: loc.lat,
+                lng: loc.lng,
+                address: result.address,
+              });
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (e) {
+              setLocation({
+                name: "Unknown place",
+                lat: loc.lat,
+                lng: loc.lng,
+                address: "",
+              });
+            }
+          }}
         />
       )}
     </div>
