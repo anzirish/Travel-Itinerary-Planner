@@ -99,7 +99,11 @@ export default function ItemEditor({
           </button>
           {location && (
             <span className="text-sm text-gray-600">
-              📍 {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+              {location && (
+                <span className="text-sm text-gray-600">
+                  {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                </span>
+              )}
             </span>
           )}
         </div>

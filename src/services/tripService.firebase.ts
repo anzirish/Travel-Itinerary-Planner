@@ -9,22 +9,39 @@ import {
   getDoc,
 } from "firebase/firestore";
 import type { Expense, ItineraryItem, PackingItem, Trip } from "../Types/trip";
+import { query, where } from "firebase/firestore";
 import { v4 as uuid } from "uuid";
 import { auth } from "../firebaseConfig";
 
 function getTripsCol() {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Not authenticated");
-  return collection(db, "users", user.uid, "trips");
+  return collection(db, "trips");
 }
 
-// subscribe to all trips
-export function subscribeTrips(callback: (trips: Trip[]) => void) {
-  return onSnapshot(getTripsCol(), (snap) => {
-    const trips = snap.docs.map((d) => d.data() as Trip);
-    callback(trips);
+// subscribe to a single trip in realtime
+export function subscribeTrip(
+  id: string,
+  callback: (trip: Trip | undefined) => void
+) {
+  return onSnapshot(doc(db, "trips", id), (snap) => {
+    if (snap.exists()) {
+      callback(snap.data() as Trip);
+    } else {
+      callback(undefined);
+    }
   });
 }
+
+
+import { getDocs } from "firebase/firestore";
+
+export async function findUserByEmail(email: string): Promise<string | null> {
+  const usersCol = collection(db, "users");
+  const q = query(usersCol, where("email", "==", email));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return snap.docs[0].id; // this is the UID
+}
+
 
 // create new trip
 export async function createTrip(data: {
@@ -32,6 +49,9 @@ export async function createTrip(data: {
   startDate: string;
   endDate: string;
 }): Promise<Trip> {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
   const trip: Trip = {
     id: uuid(),
     title: data.title,
@@ -40,22 +60,44 @@ export async function createTrip(data: {
     items: [],
     expenses: [],
     packingList: [],
+    ownerId: user.uid,
+    allowedUsers: [user.uid], // owner always has access
   };
+
   await setDoc(doc(getTripsCol(), trip.id), trip);
   return trip;
 }
 
-// subscribe to single trip
-export function subscribeTrip(
-  id: string,
-  callback: (trip: Trip | undefined) => void
-) {
-  return onSnapshot(doc(getTripsCol(), id), (snap) => {
-    if (snap.exists()) {
-      callback(snap.data() as Trip);
-    } else {
-      callback(undefined);
-    }
+// add collaborator
+export async function addCollaborator(tripId: string, userId: string) {
+  const trip = await loadTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+  if (!trip.allowedUsers.includes(userId)) {
+    trip.allowedUsers.push(userId);
+    await saveTrip(trip);
+  }
+}
+
+// remove collaborator
+export async function removeCollaborator(tripId: string, userId: string) {
+  const trip = await loadTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+  trip.allowedUsers = trip.allowedUsers.filter((id) => id !== userId);
+  await saveTrip(trip);
+}
+
+export function subscribeTrips(callback: (trips: Trip[]) => void) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
+  const tripsQuery = query(
+    collection(db, "trips"),
+    where("allowedUsers", "array-contains", user.uid)
+  );
+
+  return onSnapshot(tripsQuery, (snap) => {
+    const trips = snap.docs.map((d) => d.data() as Trip);
+    callback(trips);
   });
 }
 
@@ -96,22 +138,38 @@ export async function addItem(tripId: string, item: Omit<ItineraryItem, "id">) {
 }
 
 // add expense
-export async function addExpense(tripId: string, expense: Omit<Expense, "id">) {
+export async function addExpense(
+  tripId: string,
+  expense: Omit<Expense, "id">
+) {
   const trip = await loadTrip(tripId);
   if (!trip) throw new Error("Trip not found");
-  const newExpense: Expense = { ...expense, id: uuid() };
+
+  const newExpense: Expense = {
+    id: uuid(),
+    category: expense.category,
+    amount: expense.amount,
+    note: expense.note ?? "",
+    date: expense.date, // must come as ISO string
+  };
+
   trip.expenses = [...(trip.expenses ?? []), newExpense];
   await saveTrip(trip);
   return newExpense;
 }
 
 // delete expense
+// delete expense
 export async function deleteExpense(tripId: string, expenseId: string) {
   const trip = await loadTrip(tripId);
   if (!trip) throw new Error("Trip not found");
+
   trip.expenses = (trip.expenses ?? []).filter((e) => e.id !== expenseId);
+
   await saveTrip(trip);
+  return true;
 }
+
 
 // add packing item
 export async function addPackingItem(tripId: string, name: string) {

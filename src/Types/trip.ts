@@ -17,9 +17,9 @@ export interface PackingItem {
 }
 
 export interface WeatherForecast {
-  date: string;       // ISO date
-  temp: number;       // Celsius
-  description: string; 
+  date: string; // ISO date
+  temp: number; // Celsius
+  description: string;
 }
 
 export interface Trip {
@@ -30,6 +30,8 @@ export interface Trip {
   items: ItineraryItem[];
   expenses?: Expense[];
   packingList?: PackingItem[];
+  ownerId: string; // user who created the trip
+  allowedUsers: string[]; // user UIDs who can access this trip
   weather?: WeatherForecast[]; // optional forecast data
   documents?: TravelDocument[];
   reviews?: Review[];
