@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import type { Firestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import {
   initializeFirestore,
   persistentLocalCache,
@@ -18,6 +19,7 @@ const firebaseConfig = {
 
 // initialize Firebase app
 const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
 
 // try to enable persistent (IndexedDB) local cache with multi-tab support.
 // if that fails (browser doesn't support it or the call throws), fall back to an in-memory cache.
@@ -33,7 +35,7 @@ try {
   // persistentLocalCache failed (e.g. unsupported environment) — fall back to memory cache
   // this keeps the app working (no IndexedDB persistence), but without offline persistence across reloads
   // check the console for the original error to debug environment-specific issues
-  // eslint-disable-next-line no-console
+   
   console.warn("persistentLocalCache failed, falling back to memory cache:", err);
   db = initializeFirestore(app, {
     localCache: memoryLocalCache(),

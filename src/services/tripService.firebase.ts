@@ -10,12 +10,17 @@ import {
 } from "firebase/firestore";
 import type { Expense, ItineraryItem, PackingItem, Trip } from "../Types/trip";
 import { v4 as uuid } from "uuid";
+import { auth } from "../firebaseConfig";
 
-const tripsCol = collection(db, "trips");
+function getTripsCol() {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+  return collection(db, "users", user.uid, "trips");
+}
 
 // subscribe to all trips
 export function subscribeTrips(callback: (trips: Trip[]) => void) {
-  return onSnapshot(tripsCol, (snap) => {
+  return onSnapshot(getTripsCol(), (snap) => {
     const trips = snap.docs.map((d) => d.data() as Trip);
     callback(trips);
   });
@@ -36,7 +41,7 @@ export async function createTrip(data: {
     expenses: [],
     packingList: [],
   };
-  await setDoc(doc(tripsCol, trip.id), trip);
+  await setDoc(doc(getTripsCol(), trip.id), trip);
   return trip;
 }
 
@@ -45,7 +50,7 @@ export function subscribeTrip(
   id: string,
   callback: (trip: Trip | undefined) => void
 ) {
-  return onSnapshot(doc(tripsCol, id), (snap) => {
+  return onSnapshot(doc(getTripsCol(), id), (snap) => {
     if (snap.exists()) {
       callback(snap.data() as Trip);
     } else {
@@ -56,19 +61,19 @@ export function subscribeTrip(
 
 // load once (not realtime, just helper)
 export async function loadTrip(id: string): Promise<Trip | undefined> {
-  const ref = doc(tripsCol, id);
+  const ref = doc(getTripsCol(), id);
   const snap = await getDoc(ref);
   return snap.exists() ? (snap.data() as Trip) : undefined;
 }
 
 // save/update trip
 export async function saveTrip(trip: Trip) {
-  await setDoc(doc(tripsCol, trip.id), trip);
+  await setDoc(doc(getTripsCol(), trip.id), trip);
 }
 
 // delete trip
 export async function removeTrip(id: string) {
-  await deleteDoc(doc(tripsCol, id));
+  await deleteDoc(doc(getTripsCol(), id));
 }
 
 // delete itinerary item

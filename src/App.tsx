@@ -2,8 +2,24 @@ import { Link, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Trips from "./pages/Trips";
 import Trip from "./pages/Trip";
+import { subscribeAuth } from "./services/authService";
+import type { User } from "firebase/auth";
+import { useEffect, useState } from "react";
+import Register from "./pages/Register";
 
 function App() {
+
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    return subscribeAuth(setUser);
+  }, []);
+
+  if (user === null) {
+    console.log('navigating to register')
+    return <Register />;
+  }
+
   return (
     <>
       <div className="min-h-screen">
