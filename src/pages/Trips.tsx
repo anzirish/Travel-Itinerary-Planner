@@ -1,99 +1,113 @@
 import { useEffect, useState } from "react";
-import type { Trip } from "../Types/trip";
-import { Link, useNavigate } from "react-router-dom";
+import { CreateTripForm } from "../components/trips/CreateTripForm";
+import { DeleteConfirmationModal } from "../components/trips/DeleteConfirmationModal";
+import { LoadingSpinner } from "../components/trips/LoadingSpinner";
 import * as tripService from "../services/tripService.firebase";
+import { TripsList } from "../components/trips/TripsList";
+import type { Trip } from "../Types/trip";
+import { useNavigate } from "react-router-dom";
 
 const Trips = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
-  const [title, setTitle] = useState("");
-  const [dates, setDates] = useState({ start: "", end: "" });
+  const [isLoading, setIsLoading] = useState(true);
+  const [tripToDelete, setTripToDelete] = useState<Trip | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
+  /**
+   * Subscribe to real-time trip updates from Firebase
+   * Automatically updates UI when trips are added/removed/modified
+   */
   useEffect(() => {
-    const unsub = tripService.subscribeTrips((allTrips) => {
+    const unsubscribe = tripService.subscribeTrips((allTrips) => {
       setTrips(allTrips);
+      setIsLoading(false);
     });
-    return () => unsub();
+    
+    return () => unsubscribe();
   }, []);
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!title || !dates.start || !dates.end) return;
-    const newTrip: Trip = await tripService.createTrip({
-      title,
-      startDate: dates.start,
-      endDate: dates.end,
-    });
+  /**
+   * Handle successful trip creation
+   * Updates local state and navigates to new trip
+   */
+  const handleTripCreated = (newTrip: Trip) => {
     setTrips((prevTrips) => [newTrip, ...prevTrips]);
-    setTitle("");
-    setDates({ start: "", end: "" });
     navigate(`/trip/${newTrip.id}`);
+  };
+
+  /**
+   * Handle trip deletion request - opens confirmation modal
+   */
+  const handleDeleteRequest = (trip: Trip) => {
+    setTripToDelete(trip);
+  };
+
+  /**
+   * Handle confirmed trip deletion
+   */
+  const handleConfirmDelete = async () => {
+    if (!tripToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await tripService.removeTrip(tripToDelete.id);
+      setTripToDelete(null);
+    } catch (error) {
+      console.error("Error deleting trip:", error);
+      // Could add error toast here
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  /**
+   * Handle deletion cancellation
+   */
+  const handleCancelDelete = () => {
+    setTripToDelete(null);
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold mb-4">Your Trips</h1>
+    <div className="min-h-screen bg-slate-900 p-6">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">
+            ✈️ Your Travel Adventures
+          </h1>
+          <p className="text-slate-300">Plan, organize, and track your amazing journeys</p>
+        </div>
 
-      <form
-        onSubmit={handleCreate}
-        className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-6"
-      >
-        <input
-          className="p-2 border rounded"
-          placeholder="Trip title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <input
-          className="p-2 border rounded"
-          type="date"
-          value={dates.start}
-          onChange={(e) => setDates((s) => ({ ...s, start: e.target.value }))}
-        />
-        <input
-          className="p-2 border rounded"
-          type="date"
-          value={dates.end}
-          onChange={(e) => setDates((s) => ({ ...s, end: e.target.value }))}
-        />
-        <button
-          className="bg-blue-600 text-white rounded px-4 py-2"
-          type="submit"
-        >
-          Create Trip
-        </button>
-      </form>
+        {/* Trip Creation Form */}
+        <CreateTripForm onTripCreated={handleTripCreated} />
 
-      <div className="grid gap-4">
-        {trips.length === 0 && (
-          <div className="text-gray-500">No trips yet — create one above.</div>
-        )}
-        {trips.map((t) => (
-          <div
-            key={t.id}
-            className="p-4 bg-white rounded shadow-sm border-1 border-gray-300 flex justify-between items-center"
-          >
-            <div>
-              <Link to={`/trip/${t.id}`} className="text-lg font-medium">
-                {t.title}
-              </Link>
-              <div className="text-sm text-gray-500">
-                {t.startDate} → {t.endDate}
-              </div>
-            </div>
-            <div>
-              <button
-                className="text-sm text-white font-semibold px-4 py-2 cursor-pointer hover:bg-red-600 border rounded bg-red-500"
-                onClick={async () => {
-                  await tripService.removeTrip(t.id);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        {/* Trips List */}
+        <TripsList 
+          trips={trips} 
+          onDeleteRequest={handleDeleteRequest} 
+        />
+
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmationModal
+          isOpen={tripToDelete !== null}
+          tripTitle={tripToDelete?.title || ''}
+          isDeleting={isDeleting}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+        />
+        
       </div>
+
+      {/* Decorative Elements */}
+      <div className="fixed top-20 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="fixed bottom-20 right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="fixed top-1/2 right-4 w-16 h-16 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
     </div>
   );
 };

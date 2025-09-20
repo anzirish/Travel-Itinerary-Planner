@@ -1,3 +1,4 @@
+// Types.ts
 export type ItineraryItemType = "flight" | "hotel" | "activity" | "note";
 
 export interface ItineraryItem {
@@ -7,7 +8,7 @@ export interface ItineraryItem {
   start: string;
   end?: string;
   location?: { name: string; lng: number; lat: number; address: string } | null;
-  details?: Record<string, unknown>;
+  details?: string;
 }
 
 export interface PackingItem {
@@ -22,6 +23,12 @@ export interface WeatherForecast {
   description: string;
 }
 
+/* Reminder removed on purpose */
+
+export interface Collaborator {
+  uid: string;
+  email: string;
+}
 export interface Trip {
   id: string;
   title: string;
@@ -29,6 +36,7 @@ export interface Trip {
   endDate: string;
   items: ItineraryItem[];
   expenses?: Expense[];
+  collaborators?: Collaborator[];
   packingList?: PackingItem[];
   ownerId: string; // user who created the trip
   allowedUsers: string[]; // user UIDs who can access this trip
@@ -50,6 +58,8 @@ export interface TravelDocument {
   base64: string; // file stored as Base64 string
   uploadedAt: string; // ISO date
   uploadedBy: string; // userId
+  sizeBytes?: number;
+  mimeType?: string;
 }
 
 export interface Expense {
@@ -58,13 +68,4 @@ export interface Expense {
   amount: number;
   note?: string;
   date: string; // ISO date
-}
-
-export interface Trip {
-  id: string;
-  title: string;
-  startDate: string;
-  endDate: string;
-  items: ItineraryItem[];
-  expenses?: Expense[];
 }

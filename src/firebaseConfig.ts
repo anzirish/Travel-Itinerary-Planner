@@ -1,3 +1,4 @@
+// firebaseconfig.ts
 import { initializeApp } from "firebase/app";
 import type { Firestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -35,7 +36,6 @@ try {
   // persistentLocalCache failed (e.g. unsupported environment) — fall back to memory cache
   // this keeps the app working (no IndexedDB persistence), but without offline persistence across reloads
   // check the console for the original error to debug environment-specific issues
-   
   console.warn("persistentLocalCache failed, falling back to memory cache:", err);
   db = initializeFirestore(app, {
     localCache: memoryLocalCache(),

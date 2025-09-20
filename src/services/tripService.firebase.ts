@@ -7,11 +7,22 @@ import {
   deleteDoc,
   onSnapshot,
   getDoc,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
-import type { Expense, ItineraryItem, PackingItem, Review, TravelDocument, Trip } from "../Types/trip";
+import type {
+  Collaborator,
+  Expense,
+  ItineraryItem,
+  PackingItem,
+  Review,
+  TravelDocument,
+  Trip,
+} from "../Types/trip";
 import { query, where } from "firebase/firestore";
 import { v4 as uuid } from "uuid";
 import { auth } from "../firebaseConfig";
+import { findUserByEmail } from "./userService";
 
 function getTripsCol() {
   return collection(db, "trips");
@@ -30,18 +41,6 @@ export function subscribeTrip(
     }
   });
 }
-
-
-import { getDocs } from "firebase/firestore";
-
-export async function findUserByEmail(email: string): Promise<string | null> {
-  const usersCol = collection(db, "users");
-  const q = query(usersCol, where("email", "==", email));
-  const snap = await getDocs(q);
-  if (snap.empty) return null;
-  return snap.docs[0].id; // this is the UID
-}
-
 
 // create new trip
 export async function createTrip(data: {
@@ -69,21 +68,36 @@ export async function createTrip(data: {
 }
 
 // add collaborator
-export async function addCollaborator(tripId: string, userId: string) {
-  const trip = await loadTrip(tripId);
-  if (!trip) throw new Error("Trip not found");
-  if (!trip.allowedUsers.includes(userId)) {
-    trip.allowedUsers.push(userId);
-    await saveTrip(trip);
-  }
+export async function addCollaboratorByEmail(tripId: string, email: string) {
+  const user: Collaborator | null = await findUserByEmail(email);
+  if (!user) throw new Error("User not found with that email");
+
+  const tripRef = doc(db, "trips", tripId);
+
+  await updateDoc(tripRef, {
+    allowedUsers: arrayUnion(user.uid), // ✅ works because uid is string
+    collaborators: arrayUnion(user), // ✅ works because user is Collaborator
+  });
 }
 
-// remove collaborator
-export async function removeCollaborator(tripId: string, userId: string) {
-  const trip = await loadTrip(tripId);
-  if (!trip) throw new Error("Trip not found");
-  trip.allowedUsers = trip.allowedUsers.filter((id) => id !== userId);
-  await saveTrip(trip);
+export async function getUserById(uid: string) {
+  const ref = doc(db, "users", uid);
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data() : null;
+}
+
+// Remove collaborator
+export async function removeCollaborator(tripId: string, uid: string) {
+  const tripRef = doc(db, "trips", tripId);
+  const snap = await getDoc(tripRef);
+  if (!snap.exists()) throw new Error("Trip not found");
+
+  const trip = snap.data() as Trip;
+
+  const allowedUsers = (trip.allowedUsers || []).filter((u) => u !== uid);
+  const collaborators = (trip.collaborators || []).filter((c) => c.uid !== uid);
+
+  await updateDoc(tripRef, { allowedUsers, collaborators });
 }
 
 export function subscribeTrips(callback: (trips: Trip[]) => void) {
@@ -138,10 +152,7 @@ export async function addItem(tripId: string, item: Omit<ItineraryItem, "id">) {
 }
 
 // add expense
-export async function addExpense(
-  tripId: string,
-  expense: Omit<Expense, "id">
-) {
+export async function addExpense(tripId: string, expense: Omit<Expense, "id">) {
   const trip = await loadTrip(tripId);
   if (!trip) throw new Error("Trip not found");
 
@@ -158,7 +169,6 @@ export async function addExpense(
   return newExpense;
 }
 
-// delete expense
 // delete expense
 export async function deleteExpense(tripId: string, expenseId: string) {
   const trip = await loadTrip(tripId);
@@ -209,7 +219,6 @@ export async function deleteReview(tripId: string, reviewId: string) {
   await saveTrip(trip);
 }
 
-
 // upload document (stored inline in Firestore)
 export async function uploadDocument(
   tripId: string,
@@ -243,7 +252,6 @@ export async function deleteDocument(tripId: string, docId: string) {
   trip.documents = (trip.documents ?? []).filter((d) => d.id !== docId);
   await saveTrip(trip);
 }
-
 
 // add packing item
 export async function addPackingItem(tripId: string, name: string) {

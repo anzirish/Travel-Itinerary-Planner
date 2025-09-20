@@ -1,389 +1,498 @@
-// Trip.tsx
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import * as tripService from "../services/tripService.firebase";
-import type { Trip, Expense } from "../Types/trip";
-import DayView from "../features/itinarery/DayView";
-import ItemEditor from "../features/itinarery/ItemEditor";
-import MapPanel from "../features/itinarery/MapPanel";
-import WeatherPanel from "../features/weather/WeatherPanel";
+import type { Trip } from "../Types/trip";
+import {
+  Calendar,
+  MapPin,
+  CloudSun,
+  DollarSign,
+  Package,
+  FileText,
+  Star,
+  Share2,
+  Clock,
+  Users,
+  ArrowLeft,
+  Loader2,
+  Search,
+  Bell,
+  Settings,
+  User,
+  Home,
+  Plane,
+  Plus,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
+import DocumentsTab from "../components/trip/DocumentsTab";
+import ItineraryTab from "../components/trip/ItineraryTab";
+import MapTab from "../components/trip/MapTab";
+import WeatherPanel from "../features/weather/WeatherPanel";
+import PackingTab from "../components/trip/PackingTab";
+import ExpensesTab from "../components/trip/ExpensesTab";
+import ReviewsTab from "../components/trip/ReviewsTab";
+import ShareTab from "../components/trip/ShareTab";
+
+/**
+ * TripPage Component - Detailed trip management interface with parent UI
+ * Features tabbed navigation, trip overview, and comprehensive trip management tools
+ */
 export default function TripPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [activeTab, setActiveTab] = useState("itinerary");
+  const [isLoading, setIsLoading] = useState(true);
+  const [showParentUI, setShowParentUI] = useState(!id); // Show parent UI if no trip ID
 
-  const [newRating, setNewRating] = useState(5);
-  const [newComment, setNewComment] = useState("");
-
-  // expenses state
-  const [newCategory, setNewCategory] = useState<Expense["category"]>("other");
-  const [newAmount, setNewAmount] = useState("");
-  const [newNote, setNewNote] = useState("");
-
-  // packing list state
-  const [newPacking, setNewPacking] = useState("");
-
-  // collaborators state
-  const [newCollaborator, setNewCollaborator] = useState("");
-
-  // subscribe to trip realtime
+  /**
+   * Subscribe to real-time trip updates
+   */
   useEffect(() => {
-    if (!id) return;
-    const unsub = tripService.subscribeTrip(id, (t) => setTrip(t ?? null));
-    return () => unsub();
+    if (!id) {
+      setShowParentUI(true);
+      setIsLoading(false);
+      return;
+    }
+
+    const unsubscribe = tripService.subscribeTrip(id, (tripData) => {
+      setTrip(tripData ?? null);
+      setShowParentUI(false);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, [id]);
 
-  if (!trip) return <div>Loading...</div>;
+  /**
+   * Calculate trip duration in days
+   */
+  const getTripDuration = (trip: Trip) => {
+    const startDate = new Date(trip.startDate);
+    const endDate = new Date(trip.endDate);
+    return Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+  };
 
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold mb-4">{trip.title}</h1>
+  /**
+   * Get trip status based on dates
+   */
+  const getTripStatus = (trip: Trip) => {
+    const today = new Date();
+    const startDate = new Date(trip.startDate);
+    const endDate = new Date(trip.endDate);
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-4 border-b">
-        {[
-          "itinerary",
-          "map",
-          "weather",
-          "expenses",
-          "packing",
-          "documents",
-          "reviews",
-          "share",
-        ].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 ${
-              activeTab === tab
-                ? "border-b-2 border-blue-600 font-semibold"
-                : "text-gray-600"
-            }`}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div>
+    if (today < startDate) {
+      return {
+        label: "Upcoming",
+        className: "bg-blue-100 text-blue-800",
+        icon: Clock,
+      };
+    } else if (today >= startDate && today <= endDate) {
+      return {
+        label: "Active",
+        className: "bg-green-100 text-green-800",
+        icon: Users,
+      };
+    } else {
+      return {
+        label: "Completed",
+        className: "bg-gray-100 text-gray-800",
+        icon: Star,
+      };
+    }
+  };
 
-      {/* Itinerary Tab */}
-      {activeTab === "itinerary" && (
-        <div>
-          <DayView trip={trip} />
-          <div className="mt-4">
-            <ItemEditor
-              date={trip.startDate}
-              tripId={trip.id}
-              onClose={() => {}}
-            />
+  /**
+   * Format date for display
+   */
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const tabs = [
+    { id: "itinerary", label: "Itinerary", icon: Calendar },
+    { id: "map", label: "Map", icon: MapPin },
+    { id: "weather", label: "Weather", icon: CloudSun },
+    { id: "expenses", label: "Expenses", icon: DollarSign },
+    { id: "packing", label: "Packing", icon: Package },
+    { id: "documents", label: "Documents", icon: FileText },
+    { id: "reviews", label: "Reviews", icon: Star },
+    { id: "share", label: "Share", icon: Share2 },
+  ];
+
+  const mainTabs = [
+    { id: "dashboard", label: "Dashboard", icon: Home },
+    { id: "trips", label: "My Trips", icon: Plane },
+    { id: "explore", label: "Explore", icon: Search },
+    { id: "profile", label: "Profile", icon: User },
+  ];
+
+  const [parentActiveTab, setParentActiveTab] = useState("dashboard");
+
+  // Parent UI Components
+  const ParentHeader = () => (
+    <div className="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="text-2xl font-bold text-white">
+              🎯 Travel Planner
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button className="p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all">
+              <Search size={20} />
+            </button>
+            <button className="p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all">
+              <Bell size={20} />
+            </button>
+            <button className="p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all">
+              <Settings size={20} />
+            </button>
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+              <User size={16} className="text-white" />
+            </div>
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  );
 
-      {/* Reviews Tab */}
-      {activeTab === "reviews" && (
-        <div className="space-y-4">
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              await tripService.addReview(trip.id, {
-                userId: trip.ownerId, // later replace with auth.currentUser?.uid
-                rating: Number(newRating),
-                comment: newComment,
-              });
-              setNewRating(5);
-              setNewComment("");
-            }}
-            className="space-y-2"
-          >
-            <select
-              value={newRating}
-              onChange={(e) => setNewRating(Number(e.target.value))}
-              className="p-2 border rounded"
-            >
-              {[1, 2, 3, 4, 5].map((n) => (
-                <option key={n} value={n}>
-                  {n} Star{n > 1 && "s"}
-                </option>
-              ))}
-            </select>
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write your review..."
-              className="p-2 border rounded w-full"
-              required
-            />
+  const ParentNavigation = () => (
+    <div className="bg-slate-800 rounded-2xl border border-slate-600 p-2 shadow-lg mb-8">
+      <div className="flex gap-2">
+        {mainTabs.map((tab) => {
+          const Icon = tab.icon;
+          return (
             <button
-              type="submit"
-              className="px-3 py-1 bg-green-600 text-white rounded"
+              key={tab.id}
+              onClick={() => setParentActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 ${
+                parentActiveTab === tab.id
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+              }`}
             >
-              Submit Review
+              <Icon size={18} />
+              <span>{tab.label}</span>
             </button>
-          </form>
+          );
+        })}
+      </div>
+    </div>
+  );
 
-          <ul className="space-y-2">
-            {trip.reviews?.map((r) => (
-              <li
-                key={r.id}
-                className="bg-gray-50 p-2 rounded flex justify-between items-start"
-              >
-                <div>
-                  <div className="font-semibold">
-                    {r.rating} ★ – {r.userId}
-                  </div>
-                  <div className="text-sm text-gray-700">{r.comment}</div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(r.createdAt).toLocaleString()}
+  const DashboardContent = () => (
+    <div className="space-y-8">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white">
+        <h2 className="text-3xl font-bold mb-2">Welcome back, Explorer!</h2>
+        <p className="text-blue-100 mb-6">
+          Ready for your next adventure? Let's plan something amazing.
+        </p>
+        <button
+          onClick={() => navigate("/trip/new")}
+          className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors flex items-center gap-2"
+        >
+          <Plus size={20} />
+          Plan New Trip
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-slate-700/50 rounded-xl p-6 border border-slate-600">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-blue-500/20 rounded-lg">
+              <Plane className="text-blue-400" size={24} />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">12</p>
+              <p className="text-slate-300">Total Trips</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-700/50 rounded-xl p-6 border border-slate-600">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-green-500/20 rounded-lg">
+              <MapPin className="text-green-400" size={24} />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">23</p>
+              <p className="text-slate-300">Countries Visited</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-700/50 rounded-xl p-6 border border-slate-600">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-purple-500/20 rounded-lg">
+              <Clock className="text-purple-400" size={24} />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">156</p>
+              <p className="text-slate-300">Days Traveled</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-2xl font-bold text-white mb-6">Recent Trips</h3>
+        <div className="text-center text-slate-300 py-12">
+          <div className="text-6xl mb-4">✈️</div>
+          <p>Your trips will appear here</p>
+          <button
+            onClick={() => setParentActiveTab("trips")}
+            className="mt-4 text-blue-400 hover:text-blue-300 font-medium"
+          >
+            View All Trips →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const TripsContent = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-white">My Trips</h2>
+        <button
+          onClick={() => navigate("/trip/new")}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2"
+        >
+          <Plus size={20} />
+          New Trip
+        </button>
+      </div>
+
+      <div className="text-center text-slate-300 py-12">
+        <div className="text-6xl mb-4">🗂️</div>
+        <p>Your trip list will appear here</p>
+        <p className="text-sm mt-2 text-slate-400">
+          Connected to your tripService.firebase
+        </p>
+      </div>
+    </div>
+  );
+
+  const ParentContent = () => (
+    <div className="bg-slate-800 rounded-2xl border border-slate-600 shadow-lg p-8">
+      {parentActiveTab === "dashboard" && <DashboardContent />}
+      {parentActiveTab === "trips" && <TripsContent />}
+      {parentActiveTab === "explore" && (
+        <div className="text-center text-slate-300">
+          <div className="text-6xl mb-4">🔍</div>
+          <h2 className="text-2xl font-bold mb-2 text-white">
+            Explore Destinations
+          </h2>
+          <p>Discover amazing places for your next adventure</p>
+        </div>
+      )}
+      {parentActiveTab === "profile" && (
+        <div className="text-center text-slate-300">
+          <div className="text-6xl mb-4">👤</div>
+          <h2 className="text-2xl font-bold mb-2 text-white">Your Profile</h2>
+          <p>Manage your account and travel preferences</p>
+        </div>
+      )}
+    </div>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2
+            className="animate-spin text-blue-400 mx-auto mb-4"
+            size={48}
+          />
+          <p className="text-slate-300">Loading your trip details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show parent UI when no trip ID
+  if (showParentUI) {
+    return (
+      <div className="min-h-screen bg-slate-900">
+        <ParentHeader />
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <ParentNavigation />
+          <ParentContent />
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="fixed top-20 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="fixed bottom-20 right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="fixed top-1/2 right-4 w-16 h-16 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      </div>
+    );
+  }
+
+  if (!trip) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-white mb-2">Trip Not Found</h2>
+          <p className="text-slate-300 mb-6">
+            The trip you're looking for doesn't exist or has been removed.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 hover:shadow-lg flex items-center gap-2 mx-auto"
+          >
+            <ArrowLeft size={20} />
+            Back to Trips
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const status = getTripStatus(trip);
+  const StatusIcon = status.icon;
+
+  // Original trip detail view - dark theme
+  return (
+    <div className="min-h-screen bg-slate-900">
+      {/* Header Section */}
+      <div className="bg-slate-800 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 text-slate-300 hover:text-white mb-6 transition-colors group"
+          >
+            <ArrowLeft
+              size={20}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
+            <span className="font-medium">Back to Trips</span>
+          </button>
+
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            {/* Trip Title and Details */}
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <h1 className="text-4xl font-bold text-white">
+                  🎯 {trip.title}
+                </h1>
+                <span
+                  className={`px-3 py-1 text-sm font-medium rounded-full flex items-center gap-2 ${status.className}`}
+                >
+                  <StatusIcon size={14} />
+                  {status.label}
+                </span>
+              </div>
+
+              {/* Trip Meta Information */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Start Date */}
+                <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/20 rounded-lg">
+                      <Calendar className="text-blue-400" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Start Date</p>
+                      <p className="font-semibold text-white">
+                        {formatDate(trip.startDate)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                {r.userId === trip.ownerId && (
-                  <button
-                    onClick={() => tripService.deleteReview(trip.id, r.id)}
-                    className="text-red-600 text-sm"
-                  >
-                    Delete
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+
+                {/* End Date */}
+                <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-500/20 rounded-lg">
+                      <Calendar className="text-indigo-400" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">End Date</p>
+                      <p className="font-semibold text-white">
+                        {formatDate(trip.endDate)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Duration */}
+                <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/20 rounded-lg">
+                      <Clock className="text-purple-400" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Duration</p>
+                      <p className="font-semibold text-white">
+                        {getTripDuration(trip)} days
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
 
-      {/* Map Tab */}
-      {activeTab === "map" && <MapPanel trip={trip} />}
-
-      {/* Weather Tab */}
-      {activeTab === "weather" && <WeatherPanel trip={trip} />}
-
-      {/* Documents Tab */}
-      {activeTab === "documents" && (
-        <div className="space-y-4">
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const input = e.currentTarget.querySelector(
-                'input[type="file"]'
-              ) as HTMLInputElement;
-              if (!input.files?.length) return;
-
-              const file = input.files[0];
-              await tripService.uploadDocument(trip.id, file, trip.ownerId);
-              input.value = "";
-            }}
-            className="flex gap-2 items-center"
-          >
-            <input type="file" className="p-2 border rounded" required />
-            <button
-              type="submit"
-              className="px-3 py-1 bg-blue-600 text-white rounded"
-            >
-              Upload
-            </button>
-          </form>
-
-          <ul className="space-y-2">
-            {trip.documents?.map((doc) => (
-              <li
-                key={doc.id}
-                className="flex justify-between items-center bg-gray-50 p-2 rounded"
-              >
-                <a
-                  href={doc.base64}
-                  download={doc.name}
-                  className="text-blue-600 underline"
-                >
-                  {doc.name}
-                </a>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Navigation Tabs */}
+        <div className="bg-slate-800 rounded-2xl border border-slate-600 p-2 mb-8 shadow-lg">
+          <div className="flex flex-wrap gap-2">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
                 <button
-                  onClick={() => tripService.deleteDocument(trip.id, doc.id)}
-                  className="text-red-600 text-sm"
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all transform hover:scale-105 ${
+                    activeTab === tab.id
+                      ? "bg-blue-600 text-white shadow-lg"
+                      : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+                  }`}
                 >
-                  Delete
+                  <Icon size={18} />
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </button>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
         </div>
-      )}
 
-      {/* Expenses Tab */}
-      {activeTab === "expenses" && (
-        <div className="space-y-4">
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              await tripService.addExpense(trip.id, {
-                category: newCategory,
-                amount: Number(newAmount),
-                note: newNote,
-                date: new Date().toISOString(),
-              });
-              setNewAmount("");
-              setNewNote("");
-            }}
-            className="flex gap-2"
-          >
-            <select
-              value={newCategory}
-              onChange={(e) =>
-                setNewCategory(e.target.value as Expense["category"])
-              }
-              className="p-2 border rounded"
-            >
-              <option value="flight">Flight</option>
-              <option value="hotel">Hotel</option>
-              <option value="food">Food</option>
-              <option value="activity">Activity</option>
-              <option value="transport">Transport</option>
-              <option value="other">Other</option>
-            </select>
-            <input
-              type="number"
-              value={newAmount}
-              onChange={(e) => setNewAmount(e.target.value)}
-              placeholder="Amount"
-              className="p-2 border rounded w-24"
-              required
-            />
-            <input
-              type="text"
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Note"
-              className="p-2 border rounded flex-1"
-            />
-            <button
-              type="submit"
-              className="px-3 py-1 bg-green-600 text-white rounded"
-            >
-              Add
-            </button>
-          </form>
-
-          <ul className="space-y-2">
-            {trip.expenses?.map((e) => (
-              <li
-                key={e.id}
-                className="flex justify-between items-center bg-gray-50 p-2 rounded"
-              >
-                <span>
-                  {e.category} – ${Number(e.amount).toFixed(2)}
-                  {e.note && ` (${e.note})`}
-                </span>
-                <button
-                  onClick={() => tripService.deleteExpense(trip.id, e.id)}
-                  className="text-red-600 text-sm"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
+        {/* Tab Content Container */}
+        <div className="bg-slate-800 rounded-2xl border border-slate-600 shadow-lg overflow-hidden">
+          <div className="p-6 lg:p-8">
+            {/* Tab Contents */}
+            {activeTab === "itinerary" && <ItineraryTab trip={trip} />}
+            {activeTab === "map" && <MapTab trip={trip} />}
+            {activeTab === "weather" && <WeatherPanel trip={trip} />}
+            {activeTab === "documents" && <DocumentsTab trip={trip} />}
+            {activeTab === "expenses" && <ExpensesTab trip={trip} />}
+            {activeTab === "packing" && <PackingTab trip={trip} />}
+            {activeTab === "reviews" && <ReviewsTab trip={trip} />}
+            {activeTab === "share" && <ShareTab trip={trip} />}
+          </div>
         </div>
-      )}
+      </div>
 
-      {/* Packing Tab */}
-      {activeTab === "packing" && (
-        <div className="space-y-4">
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              await tripService.addPackingItem(trip.id, newPacking);
-              setNewPacking("");
-            }}
-            className="flex gap-2"
-          >
-            <input
-              type="text"
-              value={newPacking}
-              onChange={(e) => setNewPacking(e.target.value)}
-              placeholder="Packing item"
-              className="p-2 border rounded flex-1"
-              required
-            />
-            <button
-              type="submit"
-              className="px-3 py-1 bg-green-600 text-white rounded"
-            >
-              Add
-            </button>
-          </form>
-
-          <ul className="space-y-2">
-            {trip.packingList?.map((p) => (
-              <li
-                key={p.id}
-                className="flex justify-between items-center bg-gray-50 p-2 rounded"
-              >
-                <span
-                  className={`${
-                    p.packed ? "line-through text-gray-500" : ""
-                  } cursor-pointer`}
-                  onClick={() => tripService.togglePackingItem(trip.id, p.id)}
-                >
-                  {p.name}
-                </span>
-                <button
-                  onClick={() => tripService.removePackingItem(trip.id, p.id)}
-                  className="text-red-600 text-sm"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Share Tab */}
-      {activeTab === "share" && (
-        <div className="space-y-4">
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              await tripService.addCollaborator(trip.id, newCollaborator);
-              setNewCollaborator("");
-            }}
-            className="flex gap-2"
-          >
-            <input
-              type="text"
-              value={newCollaborator}
-              onChange={(e) => setNewCollaborator(e.target.value)}
-              placeholder="Collaborator User ID"
-              className="p-2 border rounded flex-1"
-              required
-            />
-            <button
-              type="submit"
-              className="px-3 py-1 bg-blue-600 text-white rounded"
-            >
-              Add
-            </button>
-          </form>
-
-          <ul className="space-y-2">
-            {trip.allowedUsers?.map((u) => (
-              <li
-                key={u}
-                className="flex justify-between items-center bg-gray-50 p-2 rounded"
-              >
-                <span>{u}</span>
-                {u !== trip.ownerId && (
-                  <button
-                    onClick={() => tripService.removeCollaborator(trip.id, u)}
-                    className="text-red-600 text-sm"
-                  >
-                    Remove
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Decorative Elements */}
+      <div className="fixed top-20 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="fixed bottom-20 right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="fixed top-1/2 right-4 w-16 h-16 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
     </div>
   );
 }

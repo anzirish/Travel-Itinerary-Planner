@@ -1,47 +1,40 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Trips from "./pages/Trips";
 import Trip from "./pages/Trip";
-import { subscribeAuth } from "./services/authService";
-import type { User } from "firebase/auth";
-import { useEffect, useState } from "react";
+import Login from "./pages/Login";
 import Register from "./pages/Register";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 function App() {
-
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    return subscribeAuth(setUser);
-  }, []);
-
-  if (user === null) {
-    console.log('navigating to register')
-    return <Register />;
-  }
-
   return (
-    <>
-      <div className="min-h-screen">
-        <header>
-          <div className="bg-white shadow-sm p-4">
-            <div className="container mx-auto flex items-center justify-between">
-              <Link to="/trips" className="text-2xl font-semibold">
-                Travel Planner
-              </Link>
-            </div>
-          </div>
-        </header>
+    <div className="min-h-screen">
+      <main className="container mx-auto">
+        <Routes>
+          {/* Public routes */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
 
-        <main className="container mx-auto p-4">
-          <Routes>
-            <Route path="/" element={<Trips />} />
-            <Route path="/trips" element={<Trips />} />
-            <Route path="/trip/:id" element={<Trip />} />
-          </Routes>
-        </main>
-      </div>
-    </>
+          {/* Protected routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Trips />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/trip/:id"
+            element={
+              <ProtectedRoute>
+                <Trip />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
