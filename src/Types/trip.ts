@@ -36,6 +36,13 @@ export interface Trip {
   documents?: TravelDocument[];
   reviews?: Review[];
 }
+export interface Review {
+  id: string;
+  userId: string;
+  rating: number; // 1–5
+  comment: string;
+  createdAt: string; // ISO date
+}
 
 export interface TravelDocument {
   id: string;

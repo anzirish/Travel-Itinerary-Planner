@@ -8,7 +8,7 @@ import {
   onSnapshot,
   getDoc,
 } from "firebase/firestore";
-import type { Expense, ItineraryItem, PackingItem, TravelDocument, Trip } from "../Types/trip";
+import type { Expense, ItineraryItem, PackingItem, Review, TravelDocument, Trip } from "../Types/trip";
 import { query, where } from "firebase/firestore";
 import { v4 as uuid } from "uuid";
 import { auth } from "../firebaseConfig";
@@ -178,6 +178,37 @@ function fileToBase64(file: File): Promise<string> {
     reader.onerror = reject;
   });
 }
+
+// add review
+export async function addReview(
+  tripId: string,
+  review: Omit<Review, "id" | "createdAt">
+) {
+  const trip = await loadTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+
+  const newReview: Review = {
+    id: uuid(),
+    userId: review.userId,
+    rating: review.rating,
+    comment: review.comment,
+    createdAt: new Date().toISOString(),
+  };
+
+  trip.reviews = [...(trip.reviews ?? []), newReview];
+  await saveTrip(trip);
+  return newReview;
+}
+
+// delete review
+export async function deleteReview(tripId: string, reviewId: string) {
+  const trip = await loadTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+
+  trip.reviews = (trip.reviews ?? []).filter((r) => r.id !== reviewId);
+  await saveTrip(trip);
+}
+
 
 // upload document (stored inline in Firestore)
 export async function uploadDocument(

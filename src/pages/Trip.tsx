@@ -13,6 +13,9 @@ export default function TripPage() {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [activeTab, setActiveTab] = useState("itinerary");
 
+  const [newRating, setNewRating] = useState(5);
+  const [newComment, setNewComment] = useState("");
+
   // expenses state
   const [newCategory, setNewCategory] = useState<Expense["category"]>("other");
   const [newAmount, setNewAmount] = useState("");
@@ -46,6 +49,7 @@ export default function TripPage() {
           "expenses",
           "packing",
           "documents",
+          "reviews",
           "share",
         ].map((tab) => (
           <button
@@ -73,6 +77,77 @@ export default function TripPage() {
               onClose={() => {}}
             />
           </div>
+        </div>
+      )}
+
+      {/* Reviews Tab */}
+      {activeTab === "reviews" && (
+        <div className="space-y-4">
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              await tripService.addReview(trip.id, {
+                userId: trip.ownerId, // later replace with auth.currentUser?.uid
+                rating: Number(newRating),
+                comment: newComment,
+              });
+              setNewRating(5);
+              setNewComment("");
+            }}
+            className="space-y-2"
+          >
+            <select
+              value={newRating}
+              onChange={(e) => setNewRating(Number(e.target.value))}
+              className="p-2 border rounded"
+            >
+              {[1, 2, 3, 4, 5].map((n) => (
+                <option key={n} value={n}>
+                  {n} Star{n > 1 && "s"}
+                </option>
+              ))}
+            </select>
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write your review..."
+              className="p-2 border rounded w-full"
+              required
+            />
+            <button
+              type="submit"
+              className="px-3 py-1 bg-green-600 text-white rounded"
+            >
+              Submit Review
+            </button>
+          </form>
+
+          <ul className="space-y-2">
+            {trip.reviews?.map((r) => (
+              <li
+                key={r.id}
+                className="bg-gray-50 p-2 rounded flex justify-between items-start"
+              >
+                <div>
+                  <div className="font-semibold">
+                    {r.rating} ★ – {r.userId}
+                  </div>
+                  <div className="text-sm text-gray-700">{r.comment}</div>
+                  <div className="text-xs text-gray-500">
+                    {new Date(r.createdAt).toLocaleString()}
+                  </div>
+                </div>
+                {r.userId === trip.ownerId && (
+                  <button
+                    onClick={() => tripService.deleteReview(trip.id, r.id)}
+                    className="text-red-600 text-sm"
+                  >
+                    Delete
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
