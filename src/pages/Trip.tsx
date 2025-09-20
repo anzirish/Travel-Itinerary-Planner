@@ -28,11 +28,11 @@ import { useNavigate } from "react-router-dom";
 import DocumentsTab from "../components/trip/DocumentsTab";
 import ItineraryTab from "../components/trip/ItineraryTab";
 import MapTab from "../components/trip/MapTab";
-import WeatherPanel from "../features/weather/WeatherPanel";
 import PackingTab from "../components/trip/PackingTab";
 import ExpensesTab from "../components/trip/ExpensesTab";
 import ReviewsTab from "../components/trip/ReviewsTab";
 import ShareTab from "../components/trip/ShareTab";
+import WeatherTab from "../components/trip/WeatherTab";
 
 /**
  * TripPage Component - Detailed trip management interface with parent UI
@@ -479,7 +479,7 @@ export default function TripPage() {
             {/* Tab Contents */}
             {activeTab === "itinerary" && <ItineraryTab trip={trip} />}
             {activeTab === "map" && <MapTab trip={trip} />}
-            {activeTab === "weather" && <WeatherPanel trip={trip} />}
+            {activeTab === "weather" && <WeatherTab trip={trip} />}
             {activeTab === "documents" && <DocumentsTab trip={trip} />}
             {activeTab === "expenses" && <ExpensesTab trip={trip} />}
             {activeTab === "packing" && <PackingTab trip={trip} />}
