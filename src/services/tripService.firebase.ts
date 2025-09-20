@@ -8,7 +8,7 @@ import {
   onSnapshot,
   getDoc,
 } from "firebase/firestore";
-import type { Expense, ItineraryItem, PackingItem, Trip } from "../Types/trip";
+import type { Expense, ItineraryItem, PackingItem, TravelDocument, Trip } from "../Types/trip";
 import { query, where } from "firebase/firestore";
 import { v4 as uuid } from "uuid";
 import { auth } from "../firebaseConfig";
@@ -168,6 +168,49 @@ export async function deleteExpense(tripId: string, expenseId: string) {
 
   await saveTrip(trip);
   return true;
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+  });
+}
+
+// upload document (stored inline in Firestore)
+export async function uploadDocument(
+  tripId: string,
+  file: File,
+  userId: string
+): Promise<TravelDocument> {
+  const base64 = await fileToBase64(file);
+
+  const newDoc: TravelDocument = {
+    id: uuid(),
+    name: file.name,
+    base64,
+    uploadedAt: new Date().toISOString(),
+    uploadedBy: userId,
+  };
+
+  const trip = await loadTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+
+  trip.documents = [...(trip.documents ?? []), newDoc];
+  await saveTrip(trip);
+
+  return newDoc;
+}
+
+// delete document
+export async function deleteDocument(tripId: string, docId: string) {
+  const trip = await loadTrip(tripId);
+  if (!trip) throw new Error("Trip not found");
+
+  trip.documents = (trip.documents ?? []).filter((d) => d.id !== docId);
+  await saveTrip(trip);
 }
 
 

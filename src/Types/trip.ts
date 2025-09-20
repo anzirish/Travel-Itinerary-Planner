@@ -37,6 +37,14 @@ export interface Trip {
   reviews?: Review[];
 }
 
+export interface TravelDocument {
+  id: string;
+  name: string;
+  base64: string; // file stored as Base64 string
+  uploadedAt: string; // ISO date
+  uploadedBy: string; // userId
+}
+
 export interface Expense {
   id: string;
   category: "flight" | "hotel" | "food" | "activity" | "transport" | "other";

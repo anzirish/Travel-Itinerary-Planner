@@ -39,21 +39,27 @@ export default function TripPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4 border-b">
-        {["itinerary", "map", "weather", "expenses", "packing", "share"].map(
-          (tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 ${
-                activeTab === tab
-                  ? "border-b-2 border-blue-600 font-semibold"
-                  : "text-gray-600"
-              }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          )
-        )}
+        {[
+          "itinerary",
+          "map",
+          "weather",
+          "expenses",
+          "packing",
+          "documents",
+          "share",
+        ].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 ${
+              activeTab === tab
+                ? "border-b-2 border-blue-600 font-semibold"
+                : "text-gray-600"
+            }`}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
       </div>
 
       {/* Itinerary Tab */}
@@ -75,6 +81,57 @@ export default function TripPage() {
 
       {/* Weather Tab */}
       {activeTab === "weather" && <WeatherPanel trip={trip} />}
+
+      {/* Documents Tab */}
+      {activeTab === "documents" && (
+        <div className="space-y-4">
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const input = e.currentTarget.querySelector(
+                'input[type="file"]'
+              ) as HTMLInputElement;
+              if (!input.files?.length) return;
+
+              const file = input.files[0];
+              await tripService.uploadDocument(trip.id, file, trip.ownerId);
+              input.value = "";
+            }}
+            className="flex gap-2 items-center"
+          >
+            <input type="file" className="p-2 border rounded" required />
+            <button
+              type="submit"
+              className="px-3 py-1 bg-blue-600 text-white rounded"
+            >
+              Upload
+            </button>
+          </form>
+
+          <ul className="space-y-2">
+            {trip.documents?.map((doc) => (
+              <li
+                key={doc.id}
+                className="flex justify-between items-center bg-gray-50 p-2 rounded"
+              >
+                <a
+                  href={doc.base64}
+                  download={doc.name}
+                  className="text-blue-600 underline"
+                >
+                  {doc.name}
+                </a>
+                <button
+                  onClick={() => tripService.deleteDocument(trip.id, doc.id)}
+                  className="text-red-600 text-sm"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Expenses Tab */}
       {activeTab === "expenses" && (
