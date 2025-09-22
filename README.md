@@ -1,69 +1,73 @@
-# React + TypeScript + Vite
+# ✈️ Travel Itinerary Planner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![GitHub Repo](https://img.shields.io/badge/github-anzirish%2FTravel--Itinerary--Planner-blue)](https://github.com/anzirish/Travel-Itinerary-Planner)  
+[![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Currently, two official plugins are available:
+Lucy dreamed of her perfect vacation but struggled to juggle flight details, hotel bookings, activities, and expenses. The **Travel Itinerary Planner** was built to change that — bringing all travel essentials into a single, organized, and user-friendly app.  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+With features like an **itinerary builder**, **interactive maps**, **expense tracking**, and **offline access**, the app ensures your travel experiences are structured, enjoyable, and hassle-free.  
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🌍 Features
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **📝 Intuitive Itinerary Builder**  
+  Add flights, accommodation, and activities in a day-by-day format for a crystal-clear travel plan.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **🗺️ Interactive Map Integration**  
+  Visualize destinations on a map, explore nearby attractions, and get real-time directions.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **💰 Comprehensive Expense Tracker**  
+  Categorize and monitor expenses for flights, stays, food, and activities — stay on budget while you travel.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **🎒 Smart Packing List Generator**  
+  Automatically generate packing lists tailored to your destination, duration, and planned activities.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **👨‍👩‍👧‍👦 Seamless Trip Sharing**  
+  Share your itinerary with friends or family for collaborative planning.
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **🎯 Activity Recommendations**  
+  Discover local attractions and activities based on your interests and location.
+
+- **🌦️ Weather Forecast Integration**  
+  Plan smarter with weather updates for each destination.
+
+- **📑 Travel Document Storage**  
+  Keep tickets, hotel confirmations, and IDs safely in one place.
+
+- **⭐ Feedback & Reviews**  
+  Record experiences and share feedback to help fellow travelers.
+
+---
+
+## 📸 Screenshots
+
+Here are some screenshots of the app in action:
+
+![Screenshot 1](https://drive.google.com/uc?export=view&id=1vcUpFzmbRmq9WuvS0fH6sDxpfKarV_Hu)  
+![Screenshot 2](https://drive.google.com/uc?export=view&id=1jif21ijP-VpRBiENXaDgfYJCS6k-kJIt)  
+![Screenshot 3](https://drive.google.com/uc?export=view&id=1Am1w26nM4lj_RV25ai1aI3eB7UNr5S9Q)  
+![Screenshot 4](https://drive.google.com/uc?export=view&id=1hK0WBvX-nlZi_V6SeKq3MfcC_lE4xzvP)  
+![Screenshot 5](https://drive.google.com/uc?export=view&id=1HEOWwTcCp-b7MfREPcOoZN5tTqdbgY6Y)  
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js (>= 16.x recommended)  
+- npm or yarn  
+- (If applicable) Map API key, Weather API key, etc.
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/anzirish/Travel-Itinerary-Planner.git
+
+# Navigate into project folder
+cd Travel-Itinerary-Planner
+
+# Install dependencies
+npm install
