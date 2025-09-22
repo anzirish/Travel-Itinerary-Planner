@@ -1,11 +1,17 @@
 # ✈️ Travel Itinerary Planner
 
 [![GitHub Repo](https://img.shields.io/badge/github-anzirish%2FTravel--Itinerary--Planner-blue)](https://github.com/anzirish/Travel-Itinerary-Planner)  
-[![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)  
+[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://travel-itinerary-planner-duwh.vercel.app/)
 
 Lucy dreamed of her perfect vacation but struggled to juggle flight details, hotel bookings, activities, and expenses. The **Travel Itinerary Planner** was built to change that — bringing all travel essentials into a single, organized, and user-friendly app.  
 
 With features like an **itinerary builder**, **interactive maps**, **expense tracking**, and **offline access**, the app ensures your travel experiences are structured, enjoyable, and hassle-free.  
+
+---
+
+## 🌐 Live Preview
+👉 [Try the app here](https://travel-itinerary-planner-duwh.vercel.app/)  
 
 ---
 
