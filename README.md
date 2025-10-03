@@ -1,79 +1,102 @@
-# ✈️ Travel Itinerary Planner
-
-[![GitHub Repo](https://img.shields.io/badge/github-anzirish%2FTravel--Itinerary--Planner-blue)](https://github.com/anzirish/Travel-Itinerary-Planner)  
-[![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)  
-[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://travel-itinerary-planner-duwh.vercel.app/)
-
-Lucy dreamed of her perfect vacation but struggled to juggle flight details, hotel bookings, activities, and expenses. The **Travel Itinerary Planner** was built to change that — bringing all travel essentials into a single, organized, and user-friendly app.  
-
-With features like an **itinerary builder**, **interactive maps**, **expense tracking**, and **offline access**, the app ensures your travel experiences are structured, enjoyable, and hassle-free.  
-
----
-
-## 🌐 Live Preview
-👉 [Try the app here](https://travel-itinerary-planner-duwh.vercel.app/)  
-
----
-
-## 🌍 Features
-
-- **📝 Intuitive Itinerary Builder**  
-  Add flights, accommodation, and activities in a day-by-day format for a crystal-clear travel plan.
-
-- **🗺️ Interactive Map Integration**  
-  Visualize destinations on a map, explore nearby attractions, and get real-time directions.
-
-- **💰 Comprehensive Expense Tracker**  
-  Categorize and monitor expenses for flights, stays, food, and activities — stay on budget while you travel.
-
-- **🎒 Smart Packing List Generator**  
-  Automatically generate packing lists tailored to your destination, duration, and planned activities.
-
-- **👨‍👩‍👧‍👦 Seamless Trip Sharing**  
-  Share your itinerary with friends or family for collaborative planning.
-
-- **🎯 Activity Recommendations**  
-  Discover local attractions and activities based on your interests and location.
-
-- **🌦️ Weather Forecast Integration**  
-  Plan smarter with weather updates for each destination.
-
-- **📑 Travel Document Storage**  
-  Keep tickets, hotel confirmations, and IDs safely in one place.
-
-- **⭐ Feedback & Reviews**  
-  Record experiences and share feedback to help fellow travelers.
-
----
-
-## 📸 Screenshots
-
-Here are some screenshots of the app in action:
-
-![Screenshot 1](https://drive.google.com/uc?export=view&id=1vcUpFzmbRmq9WuvS0fH6sDxpfKarV_Hu)  
-![Screenshot 2](https://drive.google.com/uc?export=view&id=1jif21ijP-VpRBiENXaDgfYJCS6k-kJIt)  
-![Screenshot 3](https://drive.google.com/uc?export=view&id=1Am1w26nM4lj_RV25ai1aI3eB7UNr5S9Q)  
-![Screenshot 4](https://drive.google.com/uc?export=view&id=1hK0WBvX-nlZi_V6SeKq3MfcC_lE4xzvP)  
-![Screenshot 5](https://drive.google.com/uc?export=view&id=1HEOWwTcCp-b7MfREPcOoZN5tTqdbgY6Y)  
-
----
-
-## 🛠️ Getting Started
-
-### Prerequisites
-
-- Node.js (>= 16.x recommended)  
-- npm or yarn  
-- (If applicable) Map API key, Weather API key, etc.
-
-### Installation
-
+# Travel Itinerary Planner
+## Introduction
+Travel Itinerary Planner is a comprehensive full-stack application designed to streamline travel planning and management. The platform enables users to organize all travel-related activities including trips, detailed itineraries, and destinations in one centralized location. Users can upload travel documents, create packing checklists, view real-time weather updates, collaborate with travel companions through email invitations, and share feedback through an integrated review system. Built with modern web technologies, this application provides a seamless and intuitive experience for planning memorable journeys.
+## Project Type
+Full-Stack
+## Deployed App
+Frontend: https://your-deployed-frontend.vercel.app
+Backend: Firebase (Serverless)
+Database: Firestore (Cloud Database)
+## Directory Structure
+```
+travel-itinerary-planner/
+├─ public/
+├─ src/
+│  ├─ components/
+│  │  ├─ Auth/
+│  │  ├─ TripCard/
+│  │  ├─ ItineraryForm/
+│  │  ├─ PackingList/
+│  │  ├─ DocumentUpload/
+│  │  ├─ WeatherWidget/
+│  │  ├─ CollaborationPanel/
+│  │  ├─ ReviewSystem/
+│  │  └─ ...
+│  ├─ services/
+│  │  ├─ firebase.js
+│  │  ├─ weatherAPI.js
+│  │  ├─ mapAPI.js
+│  │  └─ emailService.js
+│  ├─ context/
+│  │  └─ AuthContext.js
+│  ├─ pages/
+│  │  ├─ Home.tsx
+│  │  ├─ Dashboard.tsx
+│  │  ├─ TripDetails.tsx
+│  │  └─ Destinations.tsx
+│  ├─ App.tsx
+│  └─ index.tsx
+├─ .env
+├─ package.json
+├─ tsconfig.json
+└─ README.md
+```
+## Video Walkthrough of the project
+Attach a very short video walkthrough of all of the features [ 1 - 3 minutes ]
+## Video Walkthrough of the codebase
+Attach a very short video walkthrough of codebase [ 1 - 5 minutes ]
+## Features
+- User authentication and authorization with Firebase Auth
+- Create and manage multiple trips with detailed information
+- Add, edit, and delete itinerary items for each trip
+- Upload and store travel documents securely in Firebase Storage
+- Create and manage packing essentials checklists
+- Real-time weather updates for selected destinations using Weather API
+- Interactive map integration for visualizing trip locations
+- Collaboration functionality allowing users to invite others via email
+- Share trips with multiple collaborators for joint planning
+- Review and feedback system for trips to enhance user experience
+- Responsive design optimized for all devices
+- Real-time data synchronization across all users
+## Design Decisions or Assumptions
+- Chose TypeScript for enhanced type safety and better development experience
+- Selected Firebase for serverless infrastructure providing authentication, real-time database, and file storage capabilities
+- Integrated third-party Weather API for accurate, real-time weather information
+- Used Map API for visual representation of destinations and trip planning
+- Implemented email-based collaboration system assuming users would prefer inviting collaborators through familiar communication channels
+- Structured data model to support multiple users per trip with proper access control
+- Used Tailwind CSS for rapid UI development with consistent design patterns
+- Built review system to enable users to share experiences and improve trip planning
+## Installation & Getting started
 ```bash
-# Clone the repository
-git clone https://github.com/anzirish/Travel-Itinerary-Planner.git
-
-# Navigate into project folder
-cd Travel-Itinerary-Planner
-
-# Install dependencies
+git clone https://github.com/yourusername/travel-itinerary-planner.git
+cd travel-itinerary-planner
 npm install
+npm start
+```
+## Usage
+```bash
+npm start
+```
+Include screenshots as necessary.
+## Credentials
+```
+Email: demo@travelplanner.com
+Password: Demo@123
+```
+## APIs Used
+- Weather API - Real-time weather data for destinations
+- Map API - Interactive maps and location services
+- Firebase Authentication API - User management and authentication
+- Firestore API - Real-time NoSQL database
+- Firebase Storage API - Document and file storage
+  
+## Technology Stack
+- React with TypeScript
+- Firebase Authentication
+- Firestore
+- Firebase Storage
+- Weather API
+- Map API
+- Tailwind CSS
+- React Router
