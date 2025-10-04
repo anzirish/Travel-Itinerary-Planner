@@ -1,11 +1,11 @@
 # Travel Itinerary Planner
 ## Introduction
-Travel Itinerary Planner is a comprehensive full-stack application designed to streamline travel planning and management. The platform enables users to organize all travel-related activities including trips, detailed itineraries, and destinations in one centralized location. Users can upload travel documents, create packing checklists, view real-time weather updates, collaborate with travel companions through email invitations, and share feedback through an integrated review system. Built with modern web technologies, this application provides a seamless and intuitive experience for planning memorable journeys.
+Travel Itinerary Planner is a comprehensive full-stack application designed to streamline travel planning and management. The platform enables users to organize all travel-related activities, including trips, detailed itineraries, and destinations in one centralized location. Users can upload travel documents, create packing checklists, view real-time weather updates, collaborate with travel companions through email invitations, and share feedback through an integrated review system. Built with modern web technologies, this application provides a seamless and intuitive experience for planning memorable journeys.
 ## Project Type
 Full-Stack
 ## Deployed App
-Frontend: https://your-deployed-frontend.vercel.app
-Backend: Firebase (Serverless)
+Frontend: https://travel-itinerary-planner-duwh.vercel.app/ </br>
+Backend: Firebase (Serverless)</br>
 Database: Firestore (Cloud Database)
 ## Directory Structure
 ```
@@ -26,7 +26,6 @@ travel-itinerary-planner/
 │  │  ├─ firebase.js
 │  │  ├─ weatherAPI.js
 │  │  ├─ mapAPI.js
-│  │  └─ emailService.js
 │  ├─ context/
 │  │  └─ AuthContext.js
 │  ├─ pages/
@@ -36,15 +35,10 @@ travel-itinerary-planner/
 │  │  └─ Destinations.tsx
 │  ├─ App.tsx
 │  └─ index.tsx
-├─ .env
 ├─ package.json
 ├─ tsconfig.json
 └─ README.md
 ```
-## Video Walkthrough of the project
-Attach a very short video walkthrough of all of the features [ 1 - 3 minutes ]
-## Video Walkthrough of the codebase
-Attach a very short video walkthrough of codebase [ 1 - 5 minutes ]
 ## Features
 - User authentication and authorization with Firebase Auth
 - Create and manage multiple trips with detailed information
@@ -69,7 +63,7 @@ Attach a very short video walkthrough of codebase [ 1 - 5 minutes ]
 - Built review system to enable users to share experiences and improve trip planning
 ## Installation & Getting started
 ```bash
-git clone https://github.com/yourusername/travel-itinerary-planner.git
+git clone https://github.com/anzirish/travel-itinerary-planner.git
 cd travel-itinerary-planner
 npm install
 npm start
@@ -78,7 +72,7 @@ npm start
 ```bash
 npm start
 ```
-Include screenshots as necessary.
+![Travel Itinerary Planner](https://github.com/anzirish/Masai/blob/main/Screenshot%20(114).png)
 ## Credentials
 ```
 Email: demo@travelplanner.com
