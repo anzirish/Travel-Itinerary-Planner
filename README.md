@@ -1,69 +1,96 @@
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Travel Itinerary Planner
+## Introduction
+Travel Itinerary Planner is a comprehensive full-stack application designed to streamline travel planning and management. The platform enables users to organize all travel-related activities, including trips, detailed itineraries, and destinations in one centralized location. Users can upload travel documents, create packing checklists, view real-time weather updates, collaborate with travel companions through email invitations, and share feedback through an integrated review system. Built with modern web technologies, this application provides a seamless and intuitive experience for planning memorable journeys.
+## Project Type
+Full-Stack
+## Deployed App
+Frontend: https://travel-itinerary-planner-duwh.vercel.app/ </br>
+Backend: Firebase (Serverless)</br>
+Database: Firestore (Cloud Database)
+## Directory Structure
 ```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+travel-itinerary-planner/
+├─ public/
+├─ src/
+│  ├─ components/
+│  │  ├─ Auth/
+│  │  ├─ TripCard/
+│  │  ├─ ItineraryForm/
+│  │  ├─ PackingList/
+│  │  ├─ DocumentUpload/
+│  │  ├─ WeatherWidget/
+│  │  ├─ CollaborationPanel/
+│  │  ├─ ReviewSystem/
+│  │  └─ ...
+│  ├─ services/
+│  │  ├─ firebase.js
+│  │  ├─ weatherAPI.js
+│  │  ├─ mapAPI.js
+│  ├─ context/
+│  │  └─ AuthContext.js
+│  ├─ pages/
+│  │  ├─ Home.tsx
+│  │  ├─ Dashboard.tsx
+│  │  ├─ TripDetails.tsx
+│  │  └─ Destinations.tsx
+│  ├─ App.tsx
+│  └─ index.tsx
+├─ package.json
+├─ tsconfig.json
+└─ README.md
 ```
+## Features
+- User authentication and authorization with Firebase Auth
+- Create and manage multiple trips with detailed information
+- Add, edit, and delete itinerary items for each trip
+- Upload and store travel documents securely in Firebase Storage
+- Create and manage packing essentials checklists
+- Real-time weather updates for selected destinations using Weather API
+- Interactive map integration for visualizing trip locations
+- Collaboration functionality allowing users to invite others via email
+- Share trips with multiple collaborators for joint planning
+- Review and feedback system for trips to enhance user experience
+- Responsive design optimized for all devices
+- Real-time data synchronization across all users
+## Design Decisions or Assumptions
+- Chose TypeScript for enhanced type safety and better development experience
+- Selected Firebase for serverless infrastructure providing authentication, real-time database, and file storage capabilities
+- Integrated third-party Weather API for accurate, real-time weather information
+- Used Map API for visual representation of destinations and trip planning
+- Implemented email-based collaboration system assuming users would prefer inviting collaborators through familiar communication channels
+- Structured data model to support multiple users per trip with proper access control
+- Used Tailwind CSS for rapid UI development with consistent design patterns
+- Built review system to enable users to share experiences and improve trip planning
+## Installation & Getting started
+```bash
+git clone https://github.com/anzirish/travel-itinerary-planner.git
+cd travel-itinerary-planner
+npm install
+npm start
+```
+## Usage
+```bash
+npm start
+```
+![Travel Itinerary Planner](https://github.com/anzirish/Masai/blob/main/Screenshot%20(114).png)
+## Credentials
+```
+Email: demo@travelplanner.com
+Password: Demo@123
+```
+## APIs Used
+- Weather API - Real-time weather data for destinations
+- Map API - Interactive maps and location services
+- Firebase Authentication API - User management and authentication
+- Firestore API - Real-time NoSQL database
+- Firebase Storage API - Document and file storage
+  
+## Technology Stack
+- React with TypeScript
+- Firebase Authentication
+- Firestore
+- Firebase Storage
+- Weather API
+- Map API
+- Tailwind CSS
+- React Router
